@@ -26,9 +26,32 @@ const createAdminInDB = async (data: any) => {
   return result;
 };
 
-//get all admins from database
-const getAllAdmins = async () => {
-  const result = await prisma.admin.findMany();
+//get all admins from database. or search admin by name or email
+const getAllAdmins = async (req: any) => {
+  const params = req?.query;
+  let result = await prisma.admin.findMany();
+
+  if (params?.name || params?.email) {
+    result = await prisma.admin.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: params?.name,
+              mode: 'insensitive',
+            },
+          },
+          {
+            email: {
+              contains: params?.email,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+    });
+  }
+
   return result;
 };
 

@@ -17,7 +17,7 @@ const createAdmin = catchAsync(async (req, res) => {
 
 //get all admins
 const getAllAdmins = catchAsync(async (req, res) => {
-  const result = await AdminServices.getAllAdmins();
+  const result = await AdminServices.getAllAdmins(req);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
