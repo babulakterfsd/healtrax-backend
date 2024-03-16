@@ -3,6 +3,7 @@ import { AdminControllers } from './admin.controller';
 
 const router = express.Router();
 
-router.get('/get-all-admins', AdminControllers.getAllAdmins);
+router.post('/', AdminControllers.createAdmin);
+router.get('/', AdminControllers.getAllAdmins);
 
 export const AdminRoutes = router;
