@@ -1,20 +1,43 @@
-import express, { Application, Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { userRoutes } from './app/modules/User/user.routes';
+import express, { Application, Request, Response } from 'express';
+import httpStatus from 'http-status';
+import globalErrorHandler from './app/middlewares/globalErrorhandler';
+import notFound from './app/middlewares/notFound';
+import router from './app/routes';
 
 const app: Application = express();
-app.use(cors());
 
 //parser
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+//cors
+app.use(
+  cors({
+    origin: ['http://localhost:5173'],
+    credentials: true,
+  })
+);
+
+//welcome route
 app.get('/', (req: Request, res: Response) => {
-    res.send({
-        Message: "Healtrax server is running.."
-    })
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Welcome to Healtrax Server',
+    data: null,
+  });
 });
 
-app.use('/api/v1/user', userRoutes);
+// application routes
+app.use('/api/v1/', router);
+
+//global error handler
+app.use(globalErrorHandler);
+
+//Not Found
+app.use(notFound);
 
 export default app;
