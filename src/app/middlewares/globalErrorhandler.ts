@@ -128,9 +128,9 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   return res.status(statusCode).json({
     success: false,
     statusCode,
-    message,
+    message: err?.name || message,
     errorMessage,
-    errorDetails,
+    errorDetails: err,
     stack: config.NODE_ENV === 'development' ? err?.stack : null,
   });
 };

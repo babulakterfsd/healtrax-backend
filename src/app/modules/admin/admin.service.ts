@@ -1,5 +1,10 @@
-import { UserRole } from '@prisma/client';
-import { makePasswordHashed, prisma } from '../../utils/libs';
+import { Prisma, UserRole } from '@prisma/client';
+import {
+  calculatePagination,
+  makePasswordHashed,
+  prisma,
+} from '../../utils/libs';
+import { adminSearchAbleFields } from './admin.constant';
 
 //create admin in database
 const createAdminInDB = async (data: any) => {
@@ -26,33 +31,69 @@ const createAdminInDB = async (data: any) => {
   return result;
 };
 
-//get all admins from database. or search admin by name or email
-const getAllAdmins = async (req: any) => {
-  const params = req?.query;
-  let result = await prisma.admin.findMany();
+//get all admins from database. or search admin by name or email . or filter admin by specific fields
+const getAllAdmins = async (params: any, options: any) => {
+  const { page, limit, skip } = calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
 
-  if (params?.name || params?.email) {
-    result = await prisma.admin.findMany({
-      where: {
-        OR: [
-          {
-            name: {
-              contains: params?.name,
-              mode: 'insensitive',
-            },
-          },
-          {
-            email: {
-              contains: params?.email,
-              mode: 'insensitive',
-            },
-          },
-        ],
-      },
+  const conditions: Prisma.AdminWhereInput[] = [];
+
+  // search by name or email or contactNumber (cause adminsearchable fields are name and email and contactNumber only, currently)
+  if (params.searchTerm) {
+    conditions.push({
+      OR: adminSearchAbleFields.map((field) => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: 'insensitive',
+        },
+      })),
     });
   }
 
-  return result;
+  // filter by specific fields
+  if (Object.keys(filterData).length > 0) {
+    conditions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: filterData[key],
+        },
+      })),
+    });
+  }
+
+  // deleted accounts will never be fetched
+  conditions.push({
+    isDeleted: false,
+  });
+
+  const whereConditons: Prisma.AdminWhereInput = { AND: conditions };
+
+  const result = await prisma.admin.findMany({
+    where: whereConditons,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: 'desc',
+          },
+  });
+
+  const total = await prisma.admin.count({
+    where: whereConditons,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 export const AdminServices = {

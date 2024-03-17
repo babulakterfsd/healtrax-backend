@@ -1,6 +1,8 @@
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
+import pick from '../../utils/pick';
 import sendResponse from '../../utils/sendResponse';
+import { adminFilterableFields } from './admin.constant';
 import { AdminServices } from './admin.service';
 
 //create admin
@@ -17,7 +19,10 @@ const createAdmin = catchAsync(async (req, res) => {
 
 //get all admins
 const getAllAdmins = catchAsync(async (req, res) => {
-  const result = await AdminServices.getAllAdmins(req);
+  const filters = pick(req.query, adminFilterableFields);
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+
+  const result = await AdminServices.getAllAdmins(filters, options);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
