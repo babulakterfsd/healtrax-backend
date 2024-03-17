@@ -32,7 +32,63 @@ const getAllAdmins = catchAsync(async (req, res) => {
   });
 });
 
+// get admin by id
+const getAdminById = catchAsync(async (req, res) => {
+  const result = await AdminServices.getAdminByIdFromDB(req?.params?.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Admin has been fetched successfully',
+    data: result,
+  });
+});
+
+// update admin
+const updateAdmin = catchAsync(async (req, res) => {
+  const result = await AdminServices.updateAdminIntoDB(
+    req?.params?.id,
+    req?.body
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Admin has been updated successfully',
+    data: result,
+  });
+});
+
+// hard delete admin
+const deleteAdmin = catchAsync(async (req, res) => {
+  const result = await AdminServices.deleteAdminFromDB(req?.params?.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message:
+      'Admin has been deleted successfully and This action cannot be undone.',
+    data: result,
+  });
+});
+
+// soft delete admin
+const softDeleteAdmin = catchAsync(async (req, res) => {
+  const result = await AdminServices.softDeleteAdminFromDB(req?.params?.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Admin has been deleted successfully',
+    data: result,
+  });
+});
+
 export const AdminControllers = {
   getAllAdmins,
   createAdmin,
+  getAdminById,
+  updateAdmin,
+  deleteAdmin,
+  softDeleteAdmin,
 };
