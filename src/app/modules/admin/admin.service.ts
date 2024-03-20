@@ -1,13 +1,15 @@
 import { Admin, Prisma, UserRole, UserStatus } from '@prisma/client';
+import { TPaginationOptions } from '../../interface/common.interface';
 import {
   calculatePagination,
   makePasswordHashed,
   prisma,
 } from '../../utils/libs';
 import { adminSearchAbleFields } from './admin.constant';
+import { TAdminAndUser, TAdminFilterRequest } from './admin.interface';
 
 //create admin in database
-const createAdminInDB = async (data: any) => {
+const createAdminInDB = async (data: TAdminAndUser) => {
   const result = await prisma.$transaction(async (transactionClient) => {
     await transactionClient.user.create({
       data: {
@@ -32,7 +34,10 @@ const createAdminInDB = async (data: any) => {
 };
 
 //get all admins from database. or search admin by name or email . or filter admin by specific fields
-const getAllAdmins = async (params: any, options: any) => {
+const getAllAdmins = async (
+  params: TAdminFilterRequest,
+  options: TPaginationOptions
+) => {
   const { page, limit, skip } = calculatePagination(options);
   const { searchTerm, ...filterData } = params;
 
@@ -55,7 +60,7 @@ const getAllAdmins = async (params: any, options: any) => {
     conditions.push({
       AND: Object.keys(filterData).map((key) => ({
         [key]: {
-          equals: filterData[key],
+          equals: (filterData as any)[key],
         },
       })),
     });
