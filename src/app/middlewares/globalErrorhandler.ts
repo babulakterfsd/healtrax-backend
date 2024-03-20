@@ -129,8 +129,8 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     success: false,
     statusCode,
     message: err?.name || message,
-    errorMessage,
     errorDetails: err,
+    errorMessage,
     stack: config.NODE_ENV === 'development' ? err?.stack : null,
   });
 };
