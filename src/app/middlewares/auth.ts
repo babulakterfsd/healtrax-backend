@@ -1,11 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
 import config from '../config';
-import { TUserRole } from '../interface/common.interface';
 import catchAsync from '../utils/catchAsync';
 import { prisma } from '../utils/libs';
 
-const auth = (...requiredRoles: TUserRole[]) => {
+const auth = (...requiredRoles: string[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req?.headers?.authorization?.split(' ')[1];
 

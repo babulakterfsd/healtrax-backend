@@ -1,5 +1,3 @@
-export type TUserRole = 'SUPER ADMIN' | 'ADMIN' | 'DOCTOR' | 'PATIENT';
-
 export type TOptionsResult = {
   page: number;
   limit: number;
